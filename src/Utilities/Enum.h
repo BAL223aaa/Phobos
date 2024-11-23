@@ -279,6 +279,11 @@ enum class DisplayInfoType : BYTE
 	GattlingStage = 9
 };
 
+enum class TransactValueType: int {
+	Experience = 0,
+	// Other....
+};
+
 class MouseCursorHotSpotX
 {
 public:
