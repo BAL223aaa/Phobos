@@ -122,17 +122,21 @@ void WarheadTypeExt::ExtData::Detonate(TechnoClass* pOwner, HouseClass* pHouse, 
 
 		if (cellSpread)
 		{
-			for (auto pTarget : Helpers::Alex::getCellSpreadItems(coords, cellSpread, true))
-				this->DetonateOnOneUnit(pHouse, pTarget, pOwner, bulletWasIntercepted);
+		this->DetonateOnAllUnits(pHouse, coords, cellSpread, pOwner, bulletWasIntercepted);
+		if (this->Transact && !bulletWasIntercepted)
+			this->TransactOnAllUnits(pHouse, coords, cellSpread, pOwner);
 		}
 		else if (pBullet)
 		{
-			if (auto pTarget = abstract_cast<TechnoClass*>(pBullet->Target))
+		auto pTarget = abstract_cast<TechnoClass*>(pBullet->Target);
+		if (pTarget)
 			{
 				// Starkku: We should only detonate on the target if the bullet, at the moment of detonation is within acceptable distance of the target.
 				// Ares uses 64 leptons / quarter of a cell as a tolerance, so for sake of consistency we're gonna do the same here.
 				if (pBullet->DistanceFrom(pTarget) < Unsorted::LeptonsPerCell / 4)
 					this->DetonateOnOneUnit(pHouse, pTarget, pOwner, bulletWasIntercepted);
+						if (this->Transact && !bulletWasIntercepted)
+			this->TransactOnOneUnit(pHouse, pTarget, pOwner, 1);
 			}
 		}
 		else if (this->DamageAreaTarget)
@@ -178,6 +182,14 @@ void WarheadTypeExt::ExtData::DetonateOnOneUnit(HouseClass* pHouse, TechnoClass*
 		this->ApplyLocomotorInflictionReset(pTarget);
 #endif
 
+}
+
+void WarheadTypeExt::ExtData::DetonateOnAllUnits(HouseClass* pHouse, const CoordStruct coords, const float cellSpread, TechnoClass* pOwner, bool bulletWasIntercepted)
+{
+	for (auto pTarget : Helpers::Alex::getCellSpreadItems(coords, cellSpread, true))
+	{
+		this->DetonateOnOneUnit(pHouse, pTarget, pOwner, bulletWasIntercepted);
+	}
 }
 
 void WarheadTypeExt::ExtData::ApplyShieldModifiers(TechnoClass* pTarget, TechnoExt::ExtData* pTargetExt = nullptr)

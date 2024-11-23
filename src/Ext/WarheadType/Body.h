@@ -46,6 +46,24 @@ public:
 		Nullable<bool> RemoveParasite;
 		Valueable<bool> DecloakDamagedTargets;
 		Valueable<bool> ShakeIsLocal;
+		
+		Valueable<bool> Transact;
+		Valueable<bool> Transact_RequiresAnyTarget;
+		Valueable<bool> Transact_RequiresValidTarget;
+		Valueable<bool> Transact_SpreadAmongTargets;
+		Valueable<bool> Transact_Experience_IgnoreNotTrainable;
+		Valueable<int> Transact_Experience_Value;
+		Valueable<int> Transact_Experience_Source_Flat;
+		Valueable<double> Transact_Experience_Source_Percent;
+		Valueable<bool> Transact_Experience_Source_RelativeToTarget;
+		Valueable<int> Transact_Experience_Source_Min;
+		Valueable<int> Transact_Experience_Source_Max;
+		Valueable<int> Transact_Experience_Target_Flat;
+		Valueable<double> Transact_Experience_Target_Percent;
+		Valueable<bool> Transact_Experience_Target_RelativeToSource;
+		Valueable<int> Transact_Experience_Target_Min;
+		Valueable<int> Transact_Experience_Target_Max;
+		
 		Valueable<bool> ApplyModifiersOnNegativeDamage;
 		Valueable<bool> PenetratesIronCurtain;
 		Nullable<bool> PenetratesForceShield;
@@ -218,6 +236,23 @@ public:
 			, Crit_AnimOnAffectedTargets { false }
 			, Crit_AffectBelowPercent { 1.0 }
 			, Crit_SuppressWhenIntercepted { false }
+			
+			, Transact { false }
+			, Transact_RequiresAnyTarget { true }
+			, Transact_RequiresValidTarget { true }
+			, Transact_SpreadAmongTargets{ false }
+			, Transact_Experience_IgnoreNotTrainable { false }
+			, Transact_Experience_Value { 1 }
+			, Transact_Experience_Source_Flat { 0 }
+			, Transact_Experience_Source_Percent { 0.0 }
+			, Transact_Experience_Source_RelativeToTarget { false }
+			, Transact_Experience_Source_Min { -2147483647 }
+			, Transact_Experience_Source_Max { 2147483647 }
+			, Transact_Experience_Target_Flat { 0 }
+			, Transact_Experience_Target_Percent { 0.0 }
+			, Transact_Experience_Target_RelativeToSource { false }
+			, Transact_Experience_Target_Min { -2147483647 }
+			, Transact_Experience_Target_Max { 2147483647 }
 
 			, MindControl_Anim {}
 
@@ -344,6 +379,14 @@ public:
 		DamageAreaResult DamageAreaWithTarget(const CoordStruct& coords, int damage, TechnoClass* pSource, WarheadTypeClass* pWH, bool affectsTiberium, HouseClass* pSourceHouse, TechnoClass* pTarget);
 	private:
 		void DetonateOnOneUnit(HouseClass* pHouse, TechnoClass* pTarget, TechnoClass* pOwner = nullptr, bool bulletWasIntercepted = false);
+		void DetonateOnAllUnits(HouseClass* pHouse, const CoordStruct coords, const float cellSpread, TechnoClass* pOwner, bool bulletWasIntercepted = false);
+		void TransactOnOneUnitCore(HouseClass* pHouse, TechnoClass* pTarget, TechnoTypeClass* pTargetType, TechnoClass* pOwner, TechnoTypeClass* pOwnerType, int divider, bool sourceOnly = false);
+		void TransactOnOneUnit(HouseClass* pHouse, TechnoClass* pTarget, TechnoClass* pOwner, int divider);
+		void TransactOnAllUnits(HouseClass* pHouse, const CoordStruct coords, const float cellSpread, TechnoClass* pOwner);
+		int TransactGetValue(TechnoClass* pTarget, TechnoClass* pOwner, int flat, double percent, bool calcFromTarget, int targetValue, int ownerValue);
+		std::vector<std::vector<int>> TransactGetSourceAndTarget(TechnoClass* pTarget, TechnoTypeClass* pTargetType, TechnoClass* pOwner, TechnoTypeClass* pOwnerType, int divider);
+		int TransactOneValue(TechnoClass* pTechno, TechnoTypeClass* pTechnoType, int transactValue, TransactValueType valueType);
+		
 		void ApplyRemoveDisguise(HouseClass* pHouse, TechnoClass* pTarget);
 		void ApplyRemoveMindControl(TechnoClass* pTarget);
 		void ApplyCrit(HouseClass* pHouse, TechnoClass* pTarget, TechnoClass* Owner, TechnoExt::ExtData* pTargetExt);
